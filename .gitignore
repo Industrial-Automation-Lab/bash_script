@@ -1,0 +1,17 @@
+# General ignores
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*~
+#*#
+
+# IDE specific ignores
+.vscode/
+.idea/
+
+# Script specific ignores (adjust as needed)
+# For example, if your scripts create output files like:
+# output/
+# *.tmp
+# *.bak
