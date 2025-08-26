@@ -1,6 +1,6 @@
-# Bash Script Repository
+# Bash Scripts
 
-This repository contains a collection of bash scripts for various automation and utility tasks.
+This repository contains a collection of `bash scripts` for various `automation` and `utility` tasks.
 
 ## File Hierarchy
 
@@ -9,6 +9,6 @@ bash-script/
 ├── LICENSE
 ├── README.md
 └── script/
-    ├── git-tool.sh
-    └── ssh-tool.sh
+    ├── ssh_tool.sh
+    └── termux_proot_distro_config.sh
 ```
