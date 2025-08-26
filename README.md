@@ -8,7 +8,7 @@ This repository contains a collection of `bash scripts` for various `automation`
 bash-script/
 ├── LICENSE
 ├── README.md
-└── script/
+└── src/
     ├── ssh_tool.sh
     └── termux_proot_distro_config.sh
 ```
