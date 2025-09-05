@@ -1,5 +1,50 @@
 #!/usr/bin/env bash
 
+
+# Git tool
+git-sync() {
+    declare -a flags=("--upstream" "-u" "--origin" "-o")
+    declare -a args=("${@}")
+    local current_branch="$(git branch --show-current)"
+    
+    echo "arguments -> ${#args[@]}"
+    if [[ "${#args[@]}" == 1 ]] && [[ "${args[0]}" == "--help" || "${args[0]}" == "-h" ]]; then
+        echo "usage: git-sync [--upstream -u --origin -o] [main <target-branch>]"
+        return 0
+    fi
+    
+    echo "current branch -> [${current_branch}]"
+    if [[ "${#args[@]}" -eq 2 ]] && [[ "${args[0]}" == "--upstream" || "${args[0]}" == "-u" ]]; then
+        git stage --all && git commit -m "staged working directory"
+        if [[ "${?}" -eq 0 ]]; then
+            git pull upstream "${args[1]}" --rebase
+            if [[ "$(git fetch origin "${current_branch}")" ]]; then
+                git branch push --delete origin "${current_branch}"
+                if [[ "${?}" -eq 0 ]]; then
+                    git push -u origin "${current_branch}"
+                else
+                    echo "DeleteRemoteError: [${current_branch}]"
+                    return 1
+                fi
+            else
+                if [[ "${args[0]}" == "--upstream" || ${args[0]} == "-u" ]]; then
+                    echo "UpstreamNotFoundError: [${args[1]}]"
+                    return 1
+                elif [[ "${args[0]}" == "--origin" || ${args[0]} == "-o" ]]; then
+                    echo "OriginNotFoundError: [${args[1]}]"
+                    return 1
+                fi
+            fi
+        else
+            echo "StageCodebaseError: [${?}]"
+        fi
+    else
+        echo "Invalid flags: [${args[@]}]"
+        echo "use: [${flags[@]}]"
+        return 2
+    fi
+}
+
 # SSH functions 
 start-ssh() {
     # Use [start_ssh <key-name>]
@@ -29,10 +74,10 @@ alias cs="create-ssh"
 compress() {
     # compresses audio files to <x> MB size 
     
-    if [[ "${1}" == "--help" || "${1}" == "-h" ]] && [[ -z "${2}" ]]; then
+    if [[ "${#}" -eq 1 ]] && [[ "${1}" == "--help" || "${1}" == "-h" ]]; then
         echo "Usage: compress input.m4a [--size -s] ${default_target_mb} [--max_attempts -ma] ${default_max_attempts}"
         return 0
-    else
+    elif [[ "${#}" -eq 1 ]] && [[ "${1}" != "--help" || "${1}" != "-h" ]]; then
         echo "Invalid flag: [${2}]"
         echo "use: [--help -h]"
         return 2
