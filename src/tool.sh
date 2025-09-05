@@ -28,24 +28,33 @@ alias cs="create-ssh"
 
 compress() {
     # compresses audio files to <x> MB size 
+    
+    if [[ "${1}" == "--help" || "${1}" == "-h" ]] && [[ -z "${2}" ]]; then
+        echo "Usage: compress input.m4a [--size -s] ${default_target_mb} [--max_attempts -ma] ${default_max_attempts}"
+        return 0
+    else
+        echo "Invalid flag: [${2}]"
+        echo "use: [--help -h]"
+        return 2
+    fi
+    
     if [[ "$(which ffmpeg)" == "" ]]; then
         sudo apt update
         sudo apt install ffmpeg -y
     fi
     
     declare -a flags=("--size" "--max_attempt" "-s" "-ma")
-    in="${1}"; shift
+    local in="${1}"; shift
     declare -a args=("${@}")
-    ext="${in##*.}"
-    out="${in%.*}_compressed.${ext}"
-    attempt=1
-    default_target_mb=15
-    default_max_attempts=3
-    
+    local ext="${in##*.}"
+    local out="${in%.*}_compressed.${ext}"
+    local attempt=1
+    local default_target_mb=15
+    local default_max_attempts=3
     
     # Exception Handling for [Audio file Existence Checking] and [Argument Not Given]
-    if [ -z "${1}" ]; then
-      echo "Usage: [${0} input.m4a --size/-s ${default_target_mb} --max_attempts/-ma ${default_max_attempts}]"
+    if [[ -z "${1}" ]]; then
+      echo "Usage: [compress input.m4a --size/-s ${default_target_mb} --max_attempts/-ma ${default_max_attempts}]"
       return 1
     elif [[ ! -f "${in}" ]]; then
         echo "FileNotFoundError: [${in}]"
@@ -54,12 +63,12 @@ compress() {
         # Maps given args to Varaible
         if [[ "${#args[@]}" == 4 ]]; then
             if [[ "${args[0]}" == "--size" || "${args[0]}" == "-s" ]] && [[ "${args[2]}" == "--max_attempt" || "${args[2]}" == "-ma" ]]; then
-                target_mb="${args[1]}" # size
-                max_attempts="${args[3]}" # Max Attempts
+                local target_mb="${args[1]}" # size
+                local max_attempts="${args[3]}" # Max Attempts
                 
             elif [[ "${args[0]}" == "--max_attempt" || "${args[0]}" == "-ma" ]] && [[ "${args[2]}" == "--size" || "${args[2]}" == "-s" ]]; then
-                target_mb="${args[3]}" # size
-                max_attempts="${args[1]}" # Max Attempts 
+                local target_mb="${args[3]}" # size
+                local max_attempts="${args[1]}" # Max Attempts 
             else
                 echo "Invalid Flags: [${args[@]}]"
                 echo "use flags: [${flags[@]}]"
@@ -67,11 +76,11 @@ compress() {
             fi
         elif [[ "${#args[@]}" == 2 ]]; then
             if [[ "${args[0]}" == "--size" || "${args[0]}" == "-s" ]]; then
-                target_mb="${args[1]}"
-                max_attempts="${default_max_attempts}"
+                local target_mb="${args[1]}"
+                local max_attempts="${default_max_attempts}"
             elif [[ "${args[0]}" == "--max_attempt" || "${args[0]}" == "-ma" ]]; then
-                target_mb="${default_target_mb}"
-                max_attempts="${args[1]}"
+                local target_mb="${default_target_mb}"
+                local max_attempts="${args[1]}"
             else
                 echo "Invalid Flag: [${args[0]}]"
                 echo "use flags: [${flags[@]}]"
