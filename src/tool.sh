@@ -18,25 +18,25 @@ git-sync() {
         git stage --all && git commit -m "staged working directory"
         if [[ "${?}" -eq 0 ]]; then
             git pull upstream "${args[1]}" --rebase
+            if [[ "${?}" -ne 0 ]]; then
+                echo "UpstreamNotFoundError: [${args[1]}]"
+                return 1
+            fi
+            
             if [[ "$(git fetch origin "${current_branch}")" ]]; then
                 git branch push --delete origin "${current_branch}"
                 if [[ "${?}" -eq 0 ]]; then
                     git push -u origin "${current_branch}"
                 else
-                    echo "DeleteRemoteError: [${current_branch}]"
+                    echo "DeleteOriginError: [${current_branch}]"
                     return 1
                 fi
             else
-                if [[ "${args[0]}" == "--upstream" || ${args[0]} == "-u" ]]; then
-                    echo "UpstreamNotFoundError: [${args[1]}]"
-                    return 1
-                elif [[ "${args[0]}" == "--origin" || ${args[0]} == "-o" ]]; then
-                    echo "OriginNotFoundError: [${args[1]}]"
-                    return 1
-                fi
+                echo "OriginNotFoundError: [${current_branch}]"
+                return 1
             fi
         else
-            echo "StageCodebaseError: [${?}]"
+            echo "StageWorkingDirError: [${?}]"
         fi
     else
         echo "Invalid flags: [${args[@]}]"
